@@ -19,11 +19,11 @@ public class FanMeeting {
             final String fanStr = br.readLine();
             ArrayList<Integer> idols = new ArrayList<>();
             ArrayList<Integer> fans = new ArrayList<>();
-            for (int i = 0; i < idols.size(); i++){
+            for (int i = 0; i < idolStr.length(); i++){
                 if(idolStr.charAt(i) == 'F') idols.add(0);
                 else idols.add(1);
             }
-            for (int i = 0; i < fans.size(); i++){
+            for (int i = 0; i < fanStr.length(); i++){
                 if(fanStr.charAt(i) == 'F') fans.add(0);
                 else fans.add(1);
             }
@@ -49,7 +49,20 @@ public class FanMeeting {
         ArrayList z0 = karatuba(a0, b0);
         ArrayList z2 = karatuba(a1, b1);
 
-       return null;
+        addTo(a0, a1, 0); addTo(b0, b1, 0);
+
+        ArrayList z1 = karatuba(a0, b0);
+
+        subFrom(z1, z0);
+        subFrom(z1, z2);
+
+        ArrayList ret = new ArrayList();
+        addTo(ret, z0, 0);
+        addTo(ret, z1, half);
+        addTo(ret, z2, half+half);
+
+
+       return ret;
     }
 
     static ArrayList copyArray(ArrayList src, int from, int to){
@@ -61,28 +74,44 @@ public class FanMeeting {
         return dest;
     }
 
-    static void addTo(int[] a, int[] b, int k){
-
+    static void addTo(ArrayList a, ArrayList b, int k){
+        if(a.size() < b.size() + k){
+            while(a.size() == b.size() + k) a.add(0);
+        }
+        for(int i=0; i<b.size();i++) a.set(i+k,(int)a.get(i) + (int)b.get(i));
+        normalize(a);
     }
 
+    static void subFrom(ArrayList a, ArrayList b){
+        for(int i = 0; i < b.size(); i++) a.set(i, (int)a.get(i) - (int)b.get(i));
+        normalize(a);
+    }
+
+
+
     static ArrayList multiply(ArrayList a, ArrayList b){
-        int[] ret = new int[a.length + b.length + 1];
-        for (int i =0; i < a.length; i++){
-            for (int j=0; j < b.length; j++){
-                ret[i+j] = a[i]*b[j];
+        ArrayList ret = new ArrayList();
+        for (int i =0; i < a.size(); i++){
+            for (int j=0; j < b.size(); j++){
+                ret.set(i+j, (int)a.get(i)*(int)b.get(j));
             }
         }
-
         normalize(ret);
-
         return ret;
     }
 
     static void normalize(ArrayList a){
         a.add(0);
         for (int i=0; i<a.size()-1; i++){
-            a.set(i+1, (int)a.get(i+1) + ((int)a.get(i)/10));
-            a.set(i, (int)a.get(i)%10);
+            if((int)a.get(i) < 0){
+                int borrow = (Math.abs((int)a.get(i)) + 9) / 10;
+                a.set(i+1, (int)a.get(i+1) - borrow);
+                a.set(i, borrow * 10 - (int)a.get(i));
+
+            }else{
+                a.set(i+1, (int)a.get(i+1) + ((int)a.get(i)/10));
+                a.set(i, (int)a.get(i)%10);
+            }
         }
 
         while(a.size() > 0 && (int)a.get(a.size()-1) == 0) a.remove(a.size()-1);
