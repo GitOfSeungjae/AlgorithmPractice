@@ -24,12 +24,23 @@ public class FanMeeting {
                 else idols.add(1);
             }
             for (int i = 0; i < fanStr.length(); i++){
-                if(fanStr.charAt(i) == 'F') fans.add(0);
+                if(fanStr.charAt(fanStr.length() - i - 1) == 'F') fans.add(0);
                 else fans.add(1);
             }
             ArrayList<Integer> multiply = karatuba(idols, fans);
 
-            multiply.stream().forEach(i -> System.out.println(i + " "));
+            int allHugs = 0;
+            for(int i = idols.size()-1; i < fans.size(); ++i){
+                if(multiply.size() < i + 1) {
+                    allHugs++;
+                    continue;
+                }
+                if((int)multiply.get(multiply.size()-1-i) == 0) allHugs++;
+            }
+
+            multiply.stream().forEach(i -> System.out.print(i + " "));
+            System.out.println();
+            System.out.println(allHugs);
 
         }
     }
@@ -74,33 +85,34 @@ public class FanMeeting {
         return dest;
     }
 
-    static void addTo(ArrayList a, ArrayList b, int k){
+    static void addTo(ArrayList<Integer> a, ArrayList<Integer> b, int k){
         if(a.size() < b.size() + k){
             while(a.size() == b.size() + k) a.add(0);
         }
-        for(int i=0; i<b.size();i++) a.set(i+k,(int)a.get(i) + (int)b.get(i));
+        for(int i=0; i<b.size();i++) a.set(i+k,a.get(i) + b.get(i));
         normalize(a);
     }
 
-    static void subFrom(ArrayList a, ArrayList b){
-        for(int i = 0; i < b.size(); i++) a.set(i, (int)a.get(i) - (int)b.get(i));
+    static void subFrom(ArrayList<Integer> a, ArrayList<Integer> b){
+        for(int i = 0; i < b.size(); i++) a.set(i, a.get(i) - b.get(i));
         normalize(a);
     }
 
 
 
-    static ArrayList multiply(ArrayList a, ArrayList b){
-        ArrayList ret = new ArrayList();
+    static ArrayList multiply(ArrayList<Integer> a, ArrayList<Integer> b){
+        ArrayList<Integer> ret = new ArrayList<Integer>();
         for (int i =0; i < a.size(); i++){
             for (int j=0; j < b.size(); j++){
-                ret.set(i+j, (int)a.get(i)*(int)b.get(j));
+                if(ret.size() <= i + j) ret.add(a.get(i) * b.get(j));
+                else ret.set(i+j, ret.get(i+j) + (a.get(i) * b.get(j)));
             }
         }
         normalize(ret);
         return ret;
     }
 
-    static void normalize(ArrayList a){
+    static void normalize(ArrayList<Integer> a){
         a.add(0);
         for (int i=0; i<a.size()-1; i++){
             if((int)a.get(i) < 0){
@@ -114,7 +126,8 @@ public class FanMeeting {
             }
         }
 
-        while(a.size() > 0 && (int)a.get(a.size()-1) == 0) a.remove(a.size()-1);
+        if (a.get(a.size() - 1) == 0)
+            a.remove(a.size() - 1);
     }
 
 }
